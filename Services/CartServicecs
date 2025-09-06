@@ -1,0 +1,68 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using ECommerceCart.Models;
+
+namespace ECommerceCart.Services
+{
+    public class CartService
+    {
+        private List<CartItem> cart = new List<CartItem>();
+
+        public void AddToCart(Product product, int quantity)
+        {
+            var existingItem = cart.Find(c => c.Product.Name == product.Name);
+            if (existingItem != null)
+                existingItem.Quantity += quantity;
+            else
+                cart.Add(new CartItem(product, quantity));
+
+            Console.WriteLine($"{quantity} x {product.Name} added to cart.");
+        }
+
+        public void RemoveFromCart(string productName)
+        {
+            var item = cart.Find(c => c.Product.Name == productName);
+            if (item != null)
+            {
+                cart.Remove(item);
+                Console.WriteLine($"{productName} removed from cart.");
+            }
+            else
+            {
+                Console.WriteLine("Product not found in cart.");
+            }
+        }
+
+        public void ViewCart()
+        {
+            if (cart.Count == 0)
+            {
+                Console.WriteLine("Cart is empty.");
+                return;
+            }
+
+            Console.WriteLine("\n--- Your Cart ---");
+            decimal total = 0;
+            foreach (var item in cart)
+            {
+                Console.WriteLine($"{item.Quantity} x {item.Product.Name} @ {item.Product.Price} each = {item.TotalPrice()}");
+                total += item.TotalPrice();
+            }
+            Console.WriteLine($"Total: {total}");
+        }
+
+        public void Checkout()
+        {
+            if (cart.Count == 0)
+            {
+                Console.WriteLine("Cart is empty. Nothing to checkout.");
+                return;
+            }
+
+            decimal total = cart.Sum(item => item.TotalPrice());
+            Console.WriteLine($"Checkout complete. Total Amount: {total}");
+            cart.Clear();
+        }
+    }
+}
